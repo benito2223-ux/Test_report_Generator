@@ -27,7 +27,6 @@ const TOOLS: { value: AnnotationTool; icon: string; label: string }[] = [
   { value: 'crop',        icon: '⊡', label: 'Crop' },
 ]
 
-// Draw a single annotation onto a context
 function drawAnn(ctx: CanvasRenderingContext2D, ann: Annotation) {
   ctx.save()
   ctx.strokeStyle = ann.color
@@ -61,7 +60,6 @@ function drawAnn(ctx: CanvasRenderingContext2D, ann: Annotation) {
       if (!ann.points || ann.points.length < 3) break
       const [p0, cp, p1] = ann.points
       ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.quadraticCurveTo(cp.x, cp.y, p1.x, p1.y); ctx.stroke()
-      // Tangent at t=0.99 for arrowhead direction
       const t = 0.99
       const tx = 2*(1-t)*(cp.x-p0.x) + 2*t*(p1.x-cp.x)
       const ty = 2*(1-t)*(cp.y-p0.y) + 2*t*(p1.y-cp.y)
@@ -101,11 +99,8 @@ function drawAnn(ctx: CanvasRenderingContext2D, ann: Annotation) {
 }
 
 export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
-  // bgCanvas: image only, never touched after load
   const bgRef      = useRef<HTMLCanvasElement>(null)
-  // annCanvas: committed annotations drawn here
   const annRef     = useRef<HTMLCanvasElement>(null)
-  // overlayCanvas: live preview while drawing / crop UI
   const overlayRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const imgRef     = useRef<HTMLImageElement | null>(null)
@@ -126,7 +121,6 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
   const [cropRect,      setCropRect]      = useState<{x:number,y:number,w:number,h:number}|null>(null)
   const [isCropping,    setIsCropping]    = useState(false)
 
-  // Load image onto bg canvas once
   useEffect(() => {
     const img = new Image()
     img.onload = () => {
@@ -139,13 +133,11 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
       const w = Math.floor(img.width  * ratio)
       const h = Math.floor(img.height * ratio)
       setSize({ w, h })
-      // Draw image on bg canvas
       setTimeout(() => {
         const bg = bgRef.current
         if (!bg) return
         bg.width = w; bg.height = h
         bg.getContext('2d')!.drawImage(img, 0, 0, w, h)
-        // Draw existing annotations on ann canvas
         const ann = annRef.current
         if (!ann) return
         ann.width = w; ann.height = h
@@ -186,7 +178,6 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
     e.preventDefault()
     const pos = getPos(e)
 
-    // Crop UI
     if (activeTool === 'crop' && isCropping && cropStart) {
       const x = Math.min(cropStart.x, pos.x), y = Math.min(cropStart.y, pos.y)
       const w = Math.abs(pos.x - cropStart.x), h = Math.abs(pos.y - cropStart.y)
@@ -206,8 +197,6 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
     }
 
     if (!isDrawing) return
-
-    // Live preview on overlay
     const o = overlayRef.current; if (!o) return
     const ctx = o.getContext('2d')!
     ctx.clearRect(0, 0, o.width, o.height)
@@ -277,7 +266,6 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
     }
 
     if (newAnn) {
-      // Draw ONLY the new annotation on the ann canvas — never redraw the whole thing
       const ann = annRef.current
       if (ann) drawAnn(ann.getContext('2d')!, newAnn)
       setAnnotations(prev => [...prev, newAnn!])
@@ -285,13 +273,10 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
     setCurrentPoints([]); setStartPoint(null)
   }
 
-  // Apply crop: flatten bg + ann canvases, crop, reset
   const applyCrop = () => {
     if (!cropRect) return
     const { x, y, w, h } = cropRect
     if (w < 10 || h < 10) return
-
-    // Flatten: bg + annotations into one temp canvas
     const flat = document.createElement('canvas')
     flat.width = size.w; flat.height = size.h
     const fctx = flat.getContext('2d')!
@@ -299,25 +284,16 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
     const ann = annRef.current
     if (bg)  fctx.drawImage(bg, 0, 0)
     if (ann) fctx.drawImage(ann, 0, 0)
-
-    // Crop
     const cropped = document.createElement('canvas')
     cropped.width = w; cropped.height = h
     cropped.getContext('2d')!.drawImage(flat, x, y, w, h, 0, 0, w, h)
-
-    // Update bg canvas
     if (bg) { bg.width=w; bg.height=h; bg.getContext('2d')!.drawImage(cropped, 0, 0) }
-    // Clear ann canvas
     if (ann) { ann.width=w; ann.height=h; ann.getContext('2d')!.clearRect(0,0,w,h) }
-    // Clear overlay
     const o = overlayRef.current
     if (o) { o.width=w; o.height=h; o.getContext('2d')!.clearRect(0,0,w,h) }
-
-    // Update img ref
     const img = new Image()
     img.onload = () => { imgRef.current = img }
     img.src = cropped.toDataURL('image/jpeg', 0.95)
-
     setSize({ w, h })
     setAnnotations([])
     setCropRect(null); setCropStart(null); setIsCropping(false)
@@ -335,9 +311,8 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
   const undo = () => {
     setAnnotations(prev => {
       const next = prev.slice(0, -1)
-      // Redraw ann canvas from scratch
-      const ann = annRef.current; const bg = bgRef.current
-      if (ann && bg) {
+      const ann = annRef.current
+      if (ann) {
         ann.getContext('2d')!.clearRect(0, 0, ann.width, ann.height)
         next.forEach(a => drawAnn(ann.getContext('2d')!, a))
       }
@@ -352,7 +327,6 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
   }
 
   const handleSave = () => {
-    // Flatten bg + ann into final image
     const flat = document.createElement('canvas')
     flat.width = size.w; flat.height = size.h
     const ctx = flat.getContext('2d')!
@@ -363,11 +337,8 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
     onSave(flat.toDataURL('image/jpeg', 0.92), annotations, caption, keepOriginal)
   }
 
-  const cursor = activeTool === 'crop' ? 'crosshair' : 'crosshair'
-
   return (
     <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.92)', zIndex:1000, display:'flex', flexDirection:'column' }}>
-      {/* Toolbar */}
       <div style={{ background:'#111', padding:'8px 12px', display:'flex', alignItems:'center', gap:6, flexWrap:'wrap', borderBottom:'1px solid #333', flexShrink:0 }}>
         <div style={{ display:'flex', gap:3 }}>
           {TOOLS.map(tool => (
@@ -398,18 +369,16 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
         </div>
       </div>
 
-      {/* Canvas stack */}
       <div ref={containerRef} style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', padding:12 }}>
         <div style={{ position:'relative', width:size.w, height:size.h }}>
           <canvas ref={bgRef} width={size.w} height={size.h} style={{ position:'absolute', top:0, left:0, borderRadius:4 }} />
           <canvas ref={annRef} width={size.w} height={size.h} style={{ position:'absolute', top:0, left:0 }} />
-          <canvas ref={overlayRef} width={size.w} height={size.h} style={{ position:'absolute', top:0, left:0, cursor }}
+          <canvas ref={overlayRef} width={size.w} height={size.h} style={{ position:'absolute', top:0, left:0, cursor:'crosshair' }}
             onMouseDown={onPointerDown} onMouseMove={onPointerMove} onMouseUp={onPointerUp}
             onTouchStart={onPointerDown} onTouchMove={onPointerMove} onTouchEnd={onPointerUp} />
         </div>
       </div>
 
-      {/* Text input */}
       {textPosition && (
         <div style={{ background:'#1a1a1a', padding:'8px 12px', display:'flex', gap:8, borderTop:'1px solid #333' }}>
           <input value={textInput} onChange={e => setTextInput(e.target.value)} placeholder="Type text..." autoFocus
@@ -419,7 +388,6 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
         </div>
       )}
 
-      {/* Bottom bar */}
       <div style={{ background:'#111', padding:'10px 14px', display:'flex', alignItems:'center', gap:10, borderTop:'1px solid #333', flexShrink:0 }}>
         <input value={caption} onChange={e => setCaption(e.target.value)} placeholder="Caption (optional)"
           style={{ flex:1, background:'#1a1a1a', color:'#eee', border:'1px solid #333', borderRadius:6, padding:'7px 10px', fontFamily:'DM Sans', fontSize:13 }} />
