@@ -293,43 +293,54 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
     const { x, y, w, h } = cropRect
     if (w < 10 || h < 10) return
 
-    // Flatten bg + annotations with WHITE background (prevents black)
+    const bg  = bgRef.current
+    const ann = annRef.current
+    const o   = overlayRef.current
+
+    // Step 1: flatten everything into one offscreen canvas BEFORE resizing anything
     const flat = document.createElement('canvas')
-    flat.width = size.w; flat.height = size.h
+    flat.width  = size.w
+    flat.height = size.h
     const fctx = flat.getContext('2d')!
     fctx.fillStyle = '#FFFFFF'
     fctx.fillRect(0, 0, size.w, size.h)
-    const bg  = bgRef.current
-    const ann = annRef.current
-    if (bg)  fctx.drawImage(bg, 0, 0)
+    if (bg)  fctx.drawImage(bg,  0, 0)
     if (ann) fctx.drawImage(ann, 0, 0)
 
-    // Crop region
+    // Step 2: extract crop region from the flat canvas
     const cropped = document.createElement('canvas')
-    cropped.width = w; cropped.height = h
+    cropped.width  = w
+    cropped.height = h
     const cctx = cropped.getContext('2d')!
     cctx.fillStyle = '#FFFFFF'
     cctx.fillRect(0, 0, w, h)
     cctx.drawImage(flat, x, y, w, h, 0, 0, w, h)
 
-    // Update bg canvas with cropped image
-    if (bg) {
-      bg.width = w; bg.height = h
-      const bctx = bg.getContext('2d')!
-      bctx.fillStyle = '#FFFFFF'
-      bctx.fillRect(0, 0, w, h)
-      bctx.drawImage(cropped, 0, 0)
-    }
-    // Reset ann canvas
-    if (ann) { ann.width=w; ann.height=h; ann.getContext('2d')!.clearRect(0,0,w,h) }
-    // Reset overlay
-    const o = overlayRef.current
-    if (o) { o.width=w; o.height=h; o.getContext('2d')!.clearRect(0,0,w,h) }
+    // Step 3: update state first so React re-renders canvases at new size
+    setSize({ w, h })
+    setAnnotations([])
+    setCropRect(null); setCropStart(null); setIsCropping(false)
 
-    // Update img ref
-    const img = new Image()
-    img.onload = () => { imgRef.current = img }
-    img.src = cropped.toDataURL('image/jpeg', 0.95)
+    // Step 4: after state update, resize canvases and draw cropped image
+    // Use requestAnimationFrame to wait for DOM update
+    requestAnimationFrame(() => {
+      const bg2  = bgRef.current
+      const ann2 = annRef.current
+      const o2   = overlayRef.current
+      if (bg2) {
+        bg2.width  = w; bg2.height = h
+        const bctx = bg2.getContext('2d')!
+        bctx.fillStyle = '#FFFFFF'
+        bctx.fillRect(0, 0, w, h)
+        bctx.drawImage(cropped, 0, 0)
+      }
+      if (ann2) { ann2.width = w; ann2.height = h }
+      if (o2)   { o2.width  = w; o2.height  = h }
+      // Update imgRef for future redraws
+      const img = new Image()
+      img.onload = () => { imgRef.current = img }
+      img.src = cropped.toDataURL('image/jpeg', 0.95)
+    })
 
     setSize({ w, h })
     setAnnotations([])
