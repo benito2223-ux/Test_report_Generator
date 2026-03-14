@@ -277,11 +277,12 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
     }
 
     if (newAnn) {
-      // Bake into BOTH ann and bg canvases for iOS WebKit compatibility
+      // PRIMARY: bake into bg canvas immediately — this persists on iOS WebKit
+      const bg = bgRef.current
+      if (bg) drawAnn(bg.getContext('2d')!, newAnn)
+      // SECONDARY: also draw on ann canvas for undo support
       const ann = annRef.current
-      const bg  = bgRef.current
       if (ann) drawAnn(ann.getContext('2d')!, newAnn)
-      if (bg)  drawAnn(bg.getContext('2d')!, newAnn)
       setAnnotations(prev => [...prev, newAnn!])
     }
     setCurrentPoints([]); setStartPoint(null)
@@ -359,9 +360,18 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
   const undo = () => {
     setAnnotations(prev => {
       const next = prev.slice(0, -1)
-      // Redraw ann canvas from scratch
-      const ann = annRef.current; const bg = bgRef.current
-      if (ann && bg) {
+      const bg  = bgRef.current
+      const ann = annRef.current
+      const img = imgRef.current
+      // Redraw bg from scratch: img + remaining annotations
+      if (bg && img) {
+        const ctx = bg.getContext('2d')!
+        ctx.fillStyle = '#FFFFFF'
+        ctx.fillRect(0, 0, bg.width, bg.height)
+        ctx.drawImage(img, 0, 0, bg.width, bg.height)
+        next.forEach(a => drawAnn(ctx, a))
+      }
+      if (ann) {
         ann.getContext('2d')!.clearRect(0, 0, ann.width, ann.height)
         next.forEach(a => drawAnn(ann.getContext('2d')!, a))
       }
