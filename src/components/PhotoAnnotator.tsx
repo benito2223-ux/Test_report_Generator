@@ -209,7 +209,7 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
         ctx.strokeRect(x, y, w, h)
         ctx.setLineDash([])
         // Corner handles
-        [[x,y],[x+w,y],[x,y+h],[x+w,y+h]].forEach(([hx,hy]) => {
+        ;([[x,y],[x+w,y],[x,y+h],[x+w,y+h]] as [number,number][]).forEach(([hx,hy]) => {
           ctx.fillStyle = '#fff'
           ctx.fillRect(hx-5, hy-5, 10, 10)
         })
