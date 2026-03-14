@@ -165,7 +165,7 @@ export const useReportStore = create<ReportStore>((set, get) => ({
     })
   },
 
-  updateTest: (id, data) => {
+  updateTest: (id: string, data: any) => {
     const { activeReport } = get()
     if (!activeReport) return
     set({

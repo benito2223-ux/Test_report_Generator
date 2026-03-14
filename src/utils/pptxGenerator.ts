@@ -457,7 +457,7 @@ function slideNextSteps(pres: Pres, r: Report, n: number, total: number) {
 
 // ── MAIN EXPORT ────────────────────────────────────────────────────────────
 
-export async function generatePPTX(r: Report, showFinancial = true): Promise<void> {
+export async function generatePPTX(r: Report, showFinancial = true, _lang = 'EN'): Promise<void> {
   const pptxgen = (await import('pptxgenjs')).default
   const pres = new pptxgen()
   pres.layout = 'LAYOUT_16x9'

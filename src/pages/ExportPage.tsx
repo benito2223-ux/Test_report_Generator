@@ -52,7 +52,7 @@ export default function ExportPage() {
   const handlePptx = async () => {
     setGeneratingPptx(true); setError(null)
     try {
-      await generatePPTX(r, showFinancial)
+      await generatePPTX(r, showFinancial, getLang())
       setDonePptx(true)
     } catch (e) {
       setError(`PPTX Error: ${e instanceof Error ? e.message : String(e)}`)
