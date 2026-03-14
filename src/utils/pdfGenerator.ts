@@ -1,4 +1,5 @@
 import type { Report, TestEntry, ROIMetrics } from '../types'
+import { jsPDF } from 'jspdf'
 import { t, type Lang } from '../i18n'
 
 const BLUE = '#1B6EB5'
@@ -19,11 +20,7 @@ function ord(n: number) {
 // Safe arrow — avoid encoding issues with special chars in jsPDF
 const ARROW = ' -> '
 
-async function loadJsPDF() {
-  const { jsPDF } = await import('jspdf')
-  return jsPDF
-}
-type Doc = InstanceType<Awaited<ReturnType<typeof loadJsPDF>>>
+type Doc = InstanceType<typeof jsPDF>
 
 function spkFooter(doc: Doc, n: number) {
   doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(GRAY)
@@ -453,8 +450,7 @@ function pageNextSteps(doc: Doc, r: Report, n: number, lang: Lang = 'EN') {
 // ── MAIN ──────────────────────────────────────────────────────────────────
 
 export async function generatePDF(r: Report, showFinancial = true, lang: Lang = 'EN'): Promise<void> {
-  const JsPDF = await loadJsPDF()
-  const doc = new JsPDF({ orientation:'landscape', unit:'mm', format:'a4' })
+  const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' })
   doc.setFont('helvetica')
 
   let total = 5

@@ -1,4 +1,5 @@
 import type { Report, TestEntry, ROIMetrics } from '../types'
+import pptxgen from 'pptxgenjs'
 
 // SPK colors — NO # prefix for pptxgenjs
 const BLUE = '1B6EB5'
@@ -458,7 +459,6 @@ function slideNextSteps(pres: Pres, r: Report, n: number, total: number) {
 // ── MAIN EXPORT ────────────────────────────────────────────────────────────
 
 export async function generatePPTX(r: Report, showFinancial = true, _lang = 'EN'): Promise<void> {
-  const pptxgen = (await import('pptxgenjs')).default
   const pres = new pptxgen()
   pres.layout = 'LAYOUT_16x9'
   pres.author = r.contacts.salesName || 'SPK by CeramTec'

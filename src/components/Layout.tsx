@@ -75,11 +75,11 @@ export default function Layout({ children, title, back }: { children: ReactNode;
         </div>
       </header>
 
-      <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: '20px 16px 100px' }}>
+      <main style={{ flex: 1, maxWidth: 900, margin: '0 auto', width: '100%', padding: '20px 16px calc(80px + env(safe-area-inset-bottom))' }}>
         {children}
       </main>
 
-      <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: c.bgCard, borderTop: `1px solid ${c.border}`, boxShadow: `0 -2px 10px rgba(0,0,0,0.06)`, display: 'flex', zIndex: 100 }}>
+      <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: c.bgCard, paddingBottom: 'env(safe-area-inset-bottom)', borderTop: `1px solid ${c.border}`, boxShadow: `0 -2px 10px rgba(0,0,0,0.06)`, display: 'flex', zIndex: 100 }}>
         {[
           { icon: '📋', label: 'Reports', path: '/' },
           { icon: '✚', label: 'New', path: '/report/new', action: true },
