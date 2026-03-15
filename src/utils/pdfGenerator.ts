@@ -62,7 +62,8 @@ async function toJpegDataUrl(src: string): Promise<{data: string; w: number; h: 
       const canvas = document.createElement('canvas')
       canvas.width  = img.naturalWidth  || img.width  || 800
       canvas.height = img.naturalHeight || img.height || 600
-      const ctx = canvas.getContext('2d')!
+      const ctx = canvas.getContext('2d')
+      if (!ctx) { resolve(null); return } // iOS canvas context limit guard
       ctx.fillStyle = '#FFFFFF'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
       ctx.drawImage(img, 0, 0)
@@ -475,5 +476,11 @@ export async function generatePDF(r: Report, showFinancial = true, lang: Lang = 
   if (r.conclusion.nextSteps.length>0) { doc.addPage(); pageNextSteps(doc, r, n, lang) }
 
   const filename = `${(r.opportunityRef||'SPK').replace(/[^a-zA-Z0-9_-]/g,'_')}_${(r.contacts.customerCompany||'Report').replace(/[^a-zA-Z0-9_-]/g,'_')}_${new Date(r.createdAt).toISOString().slice(0,10)}.pdf`
-  doc.save(filename)
+  // Use explicit blob URL download — more reliable on iOS Safari than doc.save()
+  const blob = doc.output('blob')
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = filename
+  document.body.appendChild(a); a.click(); document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 }

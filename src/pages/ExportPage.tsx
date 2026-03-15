@@ -89,8 +89,14 @@ export default function ExportPage() {
             <div style={{ fontSize: 14, fontWeight: 600, color: c.text }}>Include financial comparison</div>
             <div style={{ fontSize: 12, color: c.textMuted }}>Cost/part, ROI on series — only if data available</div>
           </div>
-          <div onClick={() => setShowFinancial(v => !v)} style={{ width: 44, height: 24, borderRadius: 12, background: showFinancial ? c.accent : c.border, cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
-            <div style={{ position: 'absolute', top: 3, left: showFinancial ? 23 : 3, width: 18, height: 18, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => setShowFinancial(v => !v)}
+            onTouchEnd={e => { e.preventDefault(); setShowFinancial(v => !v) }}
+            style={{ width: 44, height: 24, borderRadius: 12, background: showFinancial ? c.accent : c.border, cursor: 'pointer', position: 'relative', transition: 'background 0.2s', WebkitTapHighlightColor: 'transparent' }}
+          >
+            <div style={{ position: 'absolute', top: 3, left: showFinancial ? 23 : 3, width: 18, height: 18, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', pointerEvents: 'none' }} />
           </div>
         </div>
       </Card>

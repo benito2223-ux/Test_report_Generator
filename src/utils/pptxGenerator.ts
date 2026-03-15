@@ -51,7 +51,8 @@ async function toJpeg(src: string): Promise<{data: string; w: number; h: number}
       const canvas = document.createElement('canvas')
       canvas.width = img.naturalWidth || img.width || 800
       canvas.height = img.naturalHeight || img.height || 600
-      const ctx = canvas.getContext('2d')!
+      const ctx = canvas.getContext('2d')
+      if (!ctx) { resolve(null); return } // iOS canvas context limit guard
       ctx.fillStyle = '#FFFFFF'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
       ctx.drawImage(img, 0, 0)
@@ -493,5 +494,12 @@ export async function generatePPTX(r: Report, showFinancial = true, _lang = 'EN'
   if (r.conclusion.nextSteps.length > 0) { slideNextSteps(pres, r, n, total); n++ }
 
   const filename = `${(r.opportunityRef || 'SPK').replace(/[^a-zA-Z0-9_-]/g, '_')}_${(r.contacts.customerCompany || 'Report').replace(/[^a-zA-Z0-9_-]/g, '_')}_${new Date(r.createdAt).toISOString().slice(0, 10)}.pptx`
-  await pres.writeFile({ fileName: filename })
+  // Use explicit blob URL download — pptxgen writeFile uses file-saver which fails on iOS Safari
+  const data = await pres.write({ outputType: 'arraybuffer' }) as ArrayBuffer
+  const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = filename
+  document.body.appendChild(a); a.click(); document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 }

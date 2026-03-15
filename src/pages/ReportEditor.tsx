@@ -37,7 +37,7 @@ export default function ReportEditor() {
   const r = activeReport
 
   const handleNext = async () => {
-    await save()
+    try { await save() } catch { /* continue even if save fails on iOS */ }
     if (step < STEPS.length - 1) setStep(s => s + 1)
   }
 

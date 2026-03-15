@@ -168,7 +168,11 @@ export default function PhotoAnnotator({ photo, onSave, onCancel }: Props) {
     const canvas = canvasRef.current!
     const rect = canvas.getBoundingClientRect()
     const scaleX = canvas.width/rect.width, scaleY = canvas.height/rect.height
-    if ('touches' in e) return { x:(e.touches[0].clientX-rect.left)*scaleX, y:(e.touches[0].clientY-rect.top)*scaleY }
+    if ('touches' in e) {
+      // On touchend, e.touches is empty — use changedTouches which always has the lifted finger
+      const touch = e.touches[0] ?? e.changedTouches[0]
+      return { x:(touch.clientX-rect.left)*scaleX, y:(touch.clientY-rect.top)*scaleY }
+    }
     return { x:((e as React.MouseEvent).clientX-rect.left)*scaleX, y:((e as React.MouseEvent).clientY-rect.top)*scaleY }
   }
 
