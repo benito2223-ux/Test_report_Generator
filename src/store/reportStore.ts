@@ -97,7 +97,7 @@ interface ReportStore {
   
   // Lifecycle
   newReport: () => void
-  loadReport: (id: string) => Promise<void>
+  loadReport: (id: string, reportData?: any) => Promise<void>
   saveReport: () => Promise<void>
   
   // Section updates
@@ -120,7 +120,8 @@ export const useReportStore = create<ReportStore>((set, get) => ({
 
   newReport: () => set({ activeReport: createEmptyReport() }),
 
-  loadReport: async (id) => {
+  loadReport: async (id, reportData?) => {
+    if (reportData) { set({ activeReport: reportData }); return }
     const report = await db.reports.get(id)
     if (report) set({ activeReport: report })
   },
@@ -130,7 +131,11 @@ export const useReportStore = create<ReportStore>((set, get) => ({
     if (!activeReport) return
     set({ isSaving: true })
     const updated = { ...activeReport, updatedAt: new Date().toISOString() }
-    await db.reports.put(updated)
+    // Save to Supabase (primary) and IndexedDB (local backup)
+    await Promise.all([
+      upsertReport(updated),
+      db.reports.put(updated),
+    ])
     set({ activeReport: updated, isSaving: false })
   },
 
