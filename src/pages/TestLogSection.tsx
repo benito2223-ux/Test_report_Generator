@@ -18,7 +18,7 @@ const OUTCOMES: { value: TestOutcome; label: string; color: 'success' | 'danger'
   { value: 'breakage', label: 'Breakage', color: 'danger' },
   { value: 'wear', label: 'Wear', color: 'warning' },
   { value: 'aborted', label: 'Aborted', color: 'info' },
-  { value: 'in_progress', label: 'En cours', color: 'info' },
+  { value: 'in_progress', label: 'In Progress', color: 'info' },
 ]
 
 function computeMRR(vc: number | null, f: number | null, ap: number | null): number | null {
@@ -67,12 +67,12 @@ export default function TestLogSection() {
 
   return (
     <div>
-      <Section title={`Journal de tests (${tests.length} test${tests.length !== 1 ? 's' : ''})`}>
+      <Section title={`Test Log (${tests.length} test${tests.length !== 1 ? 's' : ''})`}>
         {tests.length === 0 && !newTest && (
           <div style={{ textAlign: 'center', padding: '30px 0', color: '#444' }}>
             <div style={{ fontSize: 30, marginBottom: 8 }}>🔬</div>
-            <div style={{ fontSize: 14, marginBottom: 4 }}>Aucun test enregistré</div>
-            <div style={{ fontSize: 12, color: '#333' }}>Ajoutez votre premier test ci-dessous</div>
+            <div style={{ fontSize: 14, marginBottom: 4 }}>No tests recorded</div>
+            <div style={{ fontSize: 12, color: '#333' }}>Add your first test below</div>
           </div>
         )}
 
@@ -123,33 +123,33 @@ export default function TestLogSection() {
                   </Row>
 
                   <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 12 }}>
-                    <div style={{ fontSize: 10, color: '#C5001A', letterSpacing: '0.5px', marginBottom: 8 }}>PARAMÈTRES DE COUPE</div>
+                    <div style={{ fontSize: 10, color: '#C5001A', letterSpacing: '0.5px', marginBottom: 8 }}>CUTTING PARAMETERS</div>
                     <Row>
                       <NumField label="Vc (m/min)" value={test.parameters.vc_m_min ?? ''}
                         onChange={e => updateTest(test.id, { parameters: { ...test.parameters, vc_m_min: e.target.value ? Number(e.target.value) : null } })} />
-                      <NumField label="f (mm/tr)" value={test.parameters.f_mm_rev ?? ''}
+                      <NumField label="f (mm/rev)" value={test.parameters.f_mm_rev ?? ''}
                         onChange={e => updateTest(test.id, { parameters: { ...test.parameters, f_mm_rev: e.target.value ? Number(e.target.value) : null } })} />
                       <NumField label="ap (mm)" value={test.parameters.ap_mm ?? ''}
                         onChange={e => updateTest(test.id, { parameters: { ...test.parameters, ap_mm: e.target.value ? Number(e.target.value) : null } })} />
                     </Row>
                     {mrr && (
                       <div style={{ marginTop: 8, fontSize: 11, color: '#888' }}>
-                        MRR calculé : <span style={{ color: '#C5001A', fontWeight: 500 }}>{mrr} cm³/min</span>
+                        Calculated MRR: <span style={{ color: '#C5001A', fontWeight: 500 }}>{mrr} cm³/min</span>
                         <span style={{ color: '#444' }}> (Vc × f × ap)</span>
                       </div>
                     )}
                   </div>
 
                   <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 12 }}>
-                    <div style={{ fontSize: 10, color: '#C5001A', letterSpacing: '0.5px', marginBottom: 8 }}>RÉSULTATS</div>
+                    <div style={{ fontSize: 10, color: '#C5001A', letterSpacing: '0.5px', marginBottom: 8 }}>RESULTS</div>
                     <Row>
-                      <NumField label="Durée de vie (min)" value={test.results.insertLife_min ?? ''}
+                      <NumField label="Tool Life (min)" value={test.results.insertLife_min ?? ''}
                         onChange={e => updateTest(test.id, { results: { ...test.results, insertLife_min: e.target.value ? Number(e.target.value) : null } })} />
                       <NumField label="Insert Life (cuts)" value={test.results.insertLife_cuts ?? ''}
                         onChange={e => updateTest(test.id, { results: { ...test.results, insertLife_cuts: e.target.value ? Number(e.target.value) : null } })} />
                     </Row>
                     <div style={{ marginTop: 12 }}>
-                      <div style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>Résultat</div>
+                      <div style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>Result</div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                         {OUTCOMES.map(o => (
                           <button key={o.value}
@@ -166,8 +166,8 @@ export default function TestLogSection() {
                     </div>
                   </div>
 
-                  <TextArea label="Observations et analyse" value={test.observations} rows={3}
-                    placeholder="Décrire le comportement de la plaquette, le type d'usure, les problèmes identifiés..."
+                  <TextArea label="Observations & Analysis" value={test.observations} rows={3}
+                    placeholder="Describe insert behaviour, wear type, issues identified..."
                     onChange={e => updateTest(test.id, { observations: e.target.value })} />
 
                   <PhotoCapture
@@ -193,7 +193,7 @@ export default function TestLogSection() {
         {newTest && (
           <Card style={{ border: '1px solid #C5001A' }}>
             <div style={{ fontSize: 12, color: '#C5001A', fontWeight: 500, marginBottom: 12 }}>
-              Nouveau test #{newTest.testNumber}
+              New Test #{newTest.testNumber}
             </div>
             <Row>
               <NumField label="Workpiece #" value={newTest.workpieceNumber ?? ''}
@@ -203,11 +203,11 @@ export default function TestLogSection() {
                 options={PASS_TYPES} />
             </Row>
             <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 12, marginTop: 8 }}>
-              <div style={{ fontSize: 10, color: '#C5001A', letterSpacing: '0.5px', marginBottom: 8 }}>PARAMÈTRES</div>
+              <div style={{ fontSize: 10, color: '#C5001A', letterSpacing: '0.5px', marginBottom: 8 }}>PARAMETERS</div>
               <Row>
                 <NumField label="Vc (m/min)" value={newTest.parameters?.vc_m_min ?? ''}
                   onChange={e => setNewTest(t => ({ ...t!, parameters: { ...t!.parameters!, vc_m_min: e.target.value ? Number(e.target.value) : null } }))} />
-                <NumField label="f (mm/tr)" value={newTest.parameters?.f_mm_rev ?? ''}
+                <NumField label="f (mm/rev)" value={newTest.parameters?.f_mm_rev ?? ''}
                   onChange={e => setNewTest(t => ({ ...t!, parameters: { ...t!.parameters!, f_mm_rev: e.target.value ? Number(e.target.value) : null } }))} />
                 <NumField label="ap (mm)" value={newTest.parameters?.ap_mm ?? ''}
                   onChange={e => setNewTest(t => ({ ...t!, parameters: { ...t!.parameters!, ap_mm: e.target.value ? Number(e.target.value) : null } }))} />
@@ -218,7 +218,7 @@ export default function TestLogSection() {
               })()}
             </div>
             <div style={{ marginTop: 12 }}>
-              <div style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>Résultat initial</div>
+              <div style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>Initial Result</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {OUTCOMES.map(o => (
                   <button key={o.value}
@@ -235,7 +235,7 @@ export default function TestLogSection() {
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
               <Btn onClick={saveNewTest}>Add test</Btn>
-              <Btn variant="ghost" onClick={() => setNewTest(null)}>Annuler</Btn>
+              <Btn variant="ghost" onClick={() => setNewTest(null)}>Cancel</Btn>
             </div>
           </Card>
         )}

@@ -19,7 +19,7 @@ function MetricCard({ label, ref_val, spk_val, delta, unit = '', invert = false 
       <div style={{ fontSize: 10, color: '#666', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: 8 }}>{label}</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
         <div>
-          <div style={{ fontSize: 9, color: '#555', marginBottom: 2 }}>RÉFÉRENCE</div>
+          <div style={{ fontSize: 9, color: '#555', marginBottom: 2 }}>REFERENCE</div>
           <div style={{ fontSize: 16, fontWeight: 500, color: '#f44336' }}>
             {ref_val !== null && ref_val !== '' ? `${ref_val}${unit}` : '—'}
           </div>
@@ -37,7 +37,7 @@ function MetricCard({ label, ref_val, spk_val, delta, unit = '', invert = false 
             {deltaSign}{delta}{typeof delta === 'number' && Math.abs(delta) > 1 ? '%' : unit}
           </span>
           <span style={{ fontSize: 10, color: '#444', marginLeft: 4 }}>
-            {isGood ? '▲ Gain' : '▼ Perte'}
+            {isGood ? '▲ Gain' : '▼ Loss'}
           </span>
         </div>
       )}
@@ -70,70 +70,70 @@ export default function ROISection() {
       {/* ── Input data ── */}
       <Section title="Current Process Data (Reference)">
         <Row>
-          <NumField label="Temps de cycle (min)" value={d.ref_cycleTime_min ?? ''}
+          <NumField label="Cycle Time (min)" value={d.ref_cycleTime_min ?? ''}
             onChange={e => updateSection('roiData', { ref_cycleTime_min: e.target.value ? Number(e.target.value) : null })} />
-          <NumField label="Arêtes / plaquette" value={d.ref_cuttingEdges ?? ''}
+          <NumField label="Cutting Edges / Insert" value={d.ref_cuttingEdges ?? ''}
             onChange={e => updateSection('roiData', { ref_cuttingEdges: e.target.value ? Number(e.target.value) : null })} />
           <NumField label="Parts / Insert" value={d.ref_partsPerInsert ?? ''}
             onChange={e => updateSection('roiData', { ref_partsPerInsert: e.target.value ? Number(e.target.value) : null })} />
         </Row>
         <Row>
-          <NumField label="MRR moyen (cm³/min)" value={d.ref_mrr ?? ''}
+          <NumField label="Average MRR (cm³/min)" value={d.ref_mrr ?? ''}
             hint="Vc × f × ap"
             onChange={e => updateSection('roiData', { ref_mrr: e.target.value ? Number(e.target.value) : null })} />
-          <NumField label="Durée de vie arête (min)" value={d.ref_toolLife_min ?? ''}
+          <NumField label="Edge Life (min)" value={d.ref_toolLife_min ?? ''}
             onChange={e => updateSection('roiData', { ref_toolLife_min: e.target.value ? Number(e.target.value) : null })} />
-          <NumField label="Prix plaquette (€)" value={d.ref_insertPrice_eur ?? ''}
+          <NumField label="Insert Price (€)" value={d.ref_insertPrice_eur ?? ''}
             onChange={e => updateSection('roiData', { ref_insertPrice_eur: e.target.value ? Number(e.target.value) : null })} />
         </Row>
       </Section>
 
-      <Section title="Données Proposition SPK">
+      <Section title="SPK Proposal Data">
         <Row>
-          <NumField label="Temps de cycle (min)" value={d.spk_cycleTime_min ?? ''}
+          <NumField label="Cycle Time (min)" value={d.spk_cycleTime_min ?? ''}
             onChange={e => updateSection('roiData', { spk_cycleTime_min: e.target.value ? Number(e.target.value) : null })} />
-          <NumField label="Arêtes / plaquette" value={d.spk_cuttingEdges ?? ''}
+          <NumField label="Cutting Edges / Insert" value={d.spk_cuttingEdges ?? ''}
             onChange={e => updateSection('roiData', { spk_cuttingEdges: e.target.value ? Number(e.target.value) : null })} />
           <NumField label="Parts / Insert" value={d.spk_partsPerInsert ?? ''}
             onChange={e => updateSection('roiData', { spk_partsPerInsert: e.target.value ? Number(e.target.value) : null })} />
         </Row>
         <Row>
-          <NumField label="MRR moyen (cm³/min)" value={d.spk_mrr ?? ''}
+          <NumField label="Average MRR (cm³/min)" value={d.spk_mrr ?? ''}
             hint="Vc × f × ap"
             onChange={e => updateSection('roiData', { spk_mrr: e.target.value ? Number(e.target.value) : null })} />
-          <NumField label="Durée de vie arête (min)" value={d.spk_toolLife_min ?? ''}
+          <NumField label="Edge Life (min)" value={d.spk_toolLife_min ?? ''}
             onChange={e => updateSection('roiData', { spk_toolLife_min: e.target.value ? Number(e.target.value) : null })} />
-          <NumField label="Prix plaquette (€)" value={d.spk_insertPrice_eur ?? ''}
+          <NumField label="Insert Price (€)" value={d.spk_insertPrice_eur ?? ''}
             onChange={e => updateSection('roiData', { spk_insertPrice_eur: e.target.value ? Number(e.target.value) : null })} />
         </Row>
       </Section>
 
       <Section title="Financial Context (optional)">
         <Row>
-          <NumField label="Coût machine (€/h)" value={d.machineCostPerHour_eur ?? ''}
-            hint="Pour calcul coût/pièce complet"
+          <NumField label="Machine Cost (€/h)" value={d.machineCostPerHour_eur ?? ''}
+            hint="For total cost/part calculation"
             onChange={e => updateSection('roiData', { machineCostPerHour_eur: e.target.value ? Number(e.target.value) : null })} />
-          <NumField label="Durée poste (min)" value={d.shiftDuration_min}
+          <NumField label="Shift Duration (min)" value={d.shiftDuration_min}
             onChange={e => updateSection('roiData', { shiftDuration_min: e.target.value ? Number(e.target.value) : 480 })} />
-          <NumField label="Taille de série (pièces)" value={d.seriesSize ?? ''}
-            hint="Pour calcul ROI total série"
+          <NumField label="Series Size (parts)" value={d.seriesSize ?? ''}
+            hint="For total series ROI"
             onChange={e => updateSection('roiData', { seriesSize: e.target.value ? Number(e.target.value) : null })} />
         </Row>
       </Section>
 
       {/* ── Computed metrics ── */}
-      <Section title="Tableau de bord ROI">
+      <Section title="ROI Dashboard">
         {/* Row 1 — Core gains */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <MetricCard
-            label="Temps de cycle"
+            label="Cycle Time"
             ref_val={d.ref_cycleTime_min !== null ? `${d.ref_cycleTime_min} min` : null}
             spk_val={d.spk_cycleTime_min !== null ? `${d.spk_cycleTime_min} min` : null}
             delta={m.cycleTimeGain_pct}
             invert={true}
           />
           <MetricCard
-            label="Arêtes / plaquette"
+            label="Cutting Edges / Insert"
             ref_val={d.ref_cuttingEdges}
             spk_val={d.spk_cuttingEdges}
             delta={m.cuttingEdgesGain_pct}
@@ -145,7 +145,7 @@ export default function ROISection() {
             delta={m.partsPerInsertGain_pct}
           />
           <MetricCard
-            label="Durée de vie arête"
+            label="Edge Life"
             ref_val={d.ref_toolLife_min !== null ? `${d.ref_toolLife_min} min` : null}
             spk_val={d.spk_toolLife_min !== null ? `${d.spk_toolLife_min} min` : null}
             delta={d.ref_toolLife_min && d.spk_toolLife_min
@@ -164,15 +164,15 @@ export default function ROISection() {
             description="SPK vs Reference"
           />
           <RatioCard
-            label="Vol. métal / arête"
+            label="Metal Vol. / Edge"
             value={m.volumePerEdge_spk !== null ? `${m.volumePerEdge_spk} cm³` : null}
-            description={m.volumePerEdge_ref !== null ? `Réf: ${m.volumePerEdge_ref} cm³` : undefined}
+            description={m.volumePerEdge_ref !== null ? `Ref: ${m.volumePerEdge_ref} cm³` : undefined}
           />
           <RatioCard
-            label="Gain pièces / poste"
+            label="Parts Gained / Shift"
             value={m.piecesPerShiftGain !== null ? `+${m.piecesPerShiftGain}` : null}
             description={m.piecesPerShift_ref && m.piecesPerShift_spk
-              ? `${m.piecesPerShift_ref} → ${m.piecesPerShift_spk} pcs/poste` : undefined}
+              ? `${m.piecesPerShift_ref} → ${m.piecesPerShift_spk} pcs/shift` : undefined}
           />
         </div>
 
@@ -183,7 +183,7 @@ export default function ROISection() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {m.costPerPart_ref !== null && m.costPerPart_spk !== null && (
                 <MetricCard
-                  label="Coût total / pièce"
+                  label="Total Cost / Part"
                   ref_val={m.costPerPart_ref !== null ? `${m.costPerPart_ref} €` : null}
                   spk_val={m.costPerPart_spk !== null ? `${m.costPerPart_spk} €` : null}
                   delta={m.costPerPartGain_pct}
@@ -192,14 +192,14 @@ export default function ROISection() {
               )}
               {m.roiOnSeries_eur !== null && (
                 <RatioCard
-                  label={`ROI sur série (${d.seriesSize} pcs)`}
+                  label={`ROI on Series (${d.seriesSize} pcs)`}
                   value={`${m.roiOnSeries_eur > 0 ? '+' : ''}${m.roiOnSeries_eur} €`}
-                  description="Économie totale estimée"
+                  description="Estimated total savings"
                 />
               )}
               {m.toolChangesPerSeries_ref !== null && m.toolChangesPerSeries_spk !== null && (
                 <MetricCard
-                  label="Changements outil / série"
+                  label="Tool Changes / Series"
                   ref_val={m.toolChangesPerSeries_ref}
                   spk_val={m.toolChangesPerSeries_spk}
                   delta={m.toolChangesPerSeries_ref && m.toolChangesPerSeries_spk
@@ -215,32 +215,32 @@ export default function ROISection() {
         {/* Summary banner */}
         {m.cycleTimeGain_pct !== null && (
           <div style={{ background: '#0d0003', border: '1px solid #3a0005', borderRadius: 10, padding: '16px', marginTop: 4 }}>
-            <div style={{ fontSize: 10, color: '#C5001A', letterSpacing: '1px', marginBottom: 8 }}>SYNTHÈSE</div>
+            <div style={{ fontSize: 10, color: '#C5001A', letterSpacing: '1px', marginBottom: 8 }}>SUMMARY</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
               {m.cycleTimeGain_pct !== null && (
                 <div>
                   <span style={{ fontSize: 22, fontWeight: 700, color: Math.abs(m.cycleTimeGain_pct) > 0 ? '#4caf50' : '#f44336' }}>
                     {m.cycleTimeGain_pct > 0 ? '+' : ''}{m.cycleTimeGain_pct}%
                   </span>
-                  <div style={{ fontSize: 10, color: '#555' }}>temps cycle</div>
+                  <div style={{ fontSize: 10, color: '#555' }}>cycle time</div>
                 </div>
               )}
               {m.cuttingEdgesGain_pct !== null && (
                 <div>
                   <span style={{ fontSize: 22, fontWeight: 700, color: '#4caf50' }}>+{m.cuttingEdgesGain_pct}%</span>
-                  <div style={{ fontSize: 10, color: '#555' }}>arêtes/plaquette</div>
+                  <div style={{ fontSize: 10, color: '#555' }}>edges/insert</div>
                 </div>
               )}
               {m.partsPerInsertGain_pct !== null && (
                 <div>
                   <span style={{ fontSize: 22, fontWeight: 700, color: '#4caf50' }}>+{m.partsPerInsertGain_pct}%</span>
-                  <div style={{ fontSize: 10, color: '#555' }}>pièces/plaquette</div>
+                  <div style={{ fontSize: 10, color: '#555' }}>parts/insert</div>
                 </div>
               )}
               {m.mrrRatio !== null && (
                 <div>
                   <span style={{ fontSize: 22, fontWeight: 700, color: '#C5001A' }}>×{m.mrrRatio}</span>
-                  <div style={{ fontSize: 10, color: '#555' }}>MRR SPK/Réf</div>
+                  <div style={{ fontSize: 10, color: '#555' }}>MRR SPK/Ref</div>
                 </div>
               )}
             </div>

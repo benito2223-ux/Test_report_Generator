@@ -181,7 +181,7 @@ async function pageContacts(doc: Doc, r: Report, n: number, lang: Lang = 'EN') {
   spkFooter(doc, n)
 }
 
-function pageScope(doc: Doc, r: Report, n: number, lang: Lang = 'EN') {
+async function pageScope(doc: Doc, r: Report, n: number, lang: Lang = 'EN') {
   doc.setFillColor(WHITE); doc.rect(0,0,W,H,'F')
   blueAccent(doc)
   slideTitle(doc, t('slideScope', lang))
@@ -196,7 +196,36 @@ function pageScope(doc: Doc, r: Report, n: number, lang: Lang = 'EN') {
     doc.setFontSize(12); doc.setFont('helvetica','normal'); doc.setTextColor(GRAY)
     const lines = doc.splitTextToSize(r.testScope.backgroundContext, W - M*4 - 4)
     lines.forEach((l: string) => { doc.text(l, W/2, y, {align:'center'}); y += 6.5 })
+    y += 6
   }
+
+  // Collect scope photos: workpiece drawing + current process setup photos
+  const scopePhotos: { src: string; caption?: string }[] = []
+  if (r.workpiece.drawingPhoto) {
+    const src = r.workpiece.drawingPhoto.annotatedBase64 || r.workpiece.drawingPhoto.originalBase64
+    if (src) scopePhotos.push({ src, caption: r.workpiece.drawingPhoto.caption || 'Workpiece' })
+  }
+  for (const ph of r.currentProcess.setupPhotos.slice(0, 2)) {
+    const src = ph.annotatedBase64 || ph.originalBase64
+    if (src) scopePhotos.push({ src, caption: ph.caption })
+  }
+
+  if (scopePhotos.length > 0) {
+    const availH = H - y - 16
+    if (availH > 20) {
+      const cols = Math.min(scopePhotos.length, 3)
+      const gap = 6
+      const bw = (W - M*2 - gap*(cols-1)) / cols
+      for (let i = 0; i < cols; i++) {
+        await addPhoto(doc, scopePhotos[i].src, M + i*(bw+gap), y, bw, availH)
+        if (scopePhotos[i].caption) {
+          doc.setFontSize(8); doc.setFont('helvetica','italic'); doc.setTextColor(GRAY)
+          doc.text(scopePhotos[i].caption!, M + i*(bw+gap) + bw/2, y + availH + 4, { align: 'center' })
+        }
+      }
+    }
+  }
+
   spkFooter(doc, n)
 }
 
@@ -461,7 +490,7 @@ export async function generatePDF(r: Report, showFinancial = true, lang: Lang = 
   let n=1
   pageCover(doc, r, lang); n++
   doc.addPage(); await pageContacts(doc, r, n, lang); n++
-  doc.addPage(); pageScope(doc, r, n, lang); n++
+  doc.addPage(); await pageScope(doc, r, n, lang); n++
   doc.addPage(); await pageActualCycle(doc, r, n, lang); n++
   doc.addPage(); await pageProposal(doc, r, n, lang); n++
 

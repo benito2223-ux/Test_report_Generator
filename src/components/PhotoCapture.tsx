@@ -97,7 +97,7 @@ export default function PhotoCapture({ photos, onChange, label = 'Photos', maxPh
           {previewPhoto.caption && (
             <p style={{ color: '#ccc', marginTop: 12, fontSize: 14, textAlign: 'center' }}>{previewPhoto.caption}</p>
           )}
-          <p style={{ color: '#666', marginTop: 8, fontSize: 12 }}>Tap pour fermer</p>
+          <p style={{ color: '#666', marginTop: 8, fontSize: 12 }}>Tap to close</p>
         </div>
       )}
 
@@ -118,13 +118,13 @@ export default function PhotoCapture({ photos, onChange, label = 'Photos', maxPh
             <button
               onClick={e => { e.stopPropagation(); setEditingPhoto(photo) }}
               style={overlayBtn('#C5001A', 0, 0)}
-              title="Annoter"
+              title="Annotate"
             >✏</button>
             {/* Delete button */}
             <button
               onClick={e => { e.stopPropagation(); removePhoto(photo.id) }}
               style={overlayBtn('#333', 0, undefined, 0)}
-              title="Supprimer"
+              title="Delete"
             >×</button>
             {photo.caption && (
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.6)', borderBottomLeftRadius: 6, borderBottomRightRadius: 6, padding: '2px 3px' }}>
@@ -140,19 +140,19 @@ export default function PhotoCapture({ photos, onChange, label = 'Photos', maxPh
             <button
               onClick={() => cameraInputRef.current?.click()}
               style={addBtn}
-              title="Prendre une photo"
+              title="Take a photo"
             >
               <span style={{ fontSize: 20 }}>📷</span>
-              <span style={{ fontSize: 9, color: '#999' }}>Caméra</span>
+              <span style={{ fontSize: 9, color: '#999' }}>Camera</span>
             </button>
             {/* Upload button */}
             <button
               onClick={() => fileInputRef.current?.click()}
               style={addBtn}
-              title="Importer une image"
+              title="Import image"
             >
               <span style={{ fontSize: 20 }}>📁</span>
-              <span style={{ fontSize: 9, color: '#999' }}>Importer</span>
+              <span style={{ fontSize: 9, color: '#999' }}>Import</span>
             </button>
           </>
         )}

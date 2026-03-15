@@ -67,43 +67,43 @@ export default function ConclusionSection({ onExport }: Props) {
     <div>
       <Section title="Summary & Conclusion">
         <TextArea
-          label="Synthèse de l'essai"
+          label="Test Summary"
           value={c.summary}
           rows={5}
-          placeholder="Résumer les résultats obtenus, les conditions d'utilisation recommandées et le potentiel identifié..."
+          placeholder="Summarize results obtained, recommended operating conditions and identified potential..."
           onChange={e => updateSection('conclusion', { summary: e.target.value })}
         />
       </Section>
 
-      <Section title="Enseignements Clés">
+      <Section title="Key Learnings">
         <ListEditor
-          label="Points positifs, découvertes importantes"
+          label="Positive points, key discoveries"
           items={c.keyLearnings}
           onChange={items => updateSection('conclusion', { keyLearnings: items })}
-          placeholder="ex: Bonne stabilité en tournage cylindrique, surface excellente..."
+          placeholder="e.g. Good stability in cylindrical turning, excellent surface finish..."
         />
       </Section>
 
-      <Section title="Règles Opératoires">
+      <Section title="Operating Rules">
         <ListEditor
-          label="Conditions impératives identifiées pendant les tests"
+          label="Mandatory conditions identified during tests"
           items={c.operatingRules}
           onChange={items => updateSection('conclusion', { operatingRules: items })}
-          placeholder="ex: ap min 0,5 mm pour éviter la rupture par coupe interrompue..."
+          placeholder="e.g. ap min 0.5 mm to avoid breakage from interrupted cut..."
         />
       </Section>
 
-      <Section title="Prochaines Étapes">
+      <Section title="Next Steps">
         <ListEditor
-          label="Actions à mener suite à cet essai"
+          label="Actions to follow up on after this test"
           items={c.nextSteps}
           onChange={items => updateSection('conclusion', { nextSteps: items })}
-          placeholder="ex: Fournir le grade LSM800 pour test complémentaire..."
+          placeholder="e.g. Provide LSM800 grade for additional test..."
         />
       </Section>
 
       {/* Status update */}
-      <Section title="Statut du rapport">
+      <Section title="Report Status">
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {(['draft', 'completed', 'exported'] as const).map(s => (
             <button key={s}
@@ -125,13 +125,13 @@ export default function ConclusionSection({ onExport }: Props) {
       {/* Export CTA */}
       <Card style={{ background: '#0d0003', border: '1px solid #3a0005', textAlign: 'center', padding: 24 }}>
         <div style={{ fontSize: 28, marginBottom: 8 }}>📄</div>
-        <div style={{ fontSize: 15, fontWeight: 500, color: '#f0f0f0', marginBottom: 4 }}>Rapport prêt pour export</div>
+        <div style={{ fontSize: 15, fontWeight: 500, color: '#f0f0f0', marginBottom: 4 }}>Report ready for export</div>
         <div style={{ fontSize: 12, color: '#555', marginBottom: 16 }}>
           {activeReport.testLog.length} test{activeReport.testLog.length !== 1 ? 's' : ''} ·{' '}
           {activeReport.testLog.reduce((acc, t) => acc + t.photos.length, 0)} photo{activeReport.testLog.reduce((acc, t) => acc + t.photos.length, 0) !== 1 ? 's' : ''}
         </div>
         <Btn onClick={onExport} style={{ width: '100%', padding: '14px', fontSize: 15 }}>
-          Générer le PDF →
+          Generate PDF →
         </Btn>
       </Card>
     </div>
