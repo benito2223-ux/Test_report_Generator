@@ -54,16 +54,23 @@ function bodyLine(doc: Doc, text: string, x: number, y: number, maxW = 120) {
   return y + lines.length * 7
 }
 
+// Shared canvas — reused across all photo conversions to avoid iOS context limit
+let _sharedCanvas: HTMLCanvasElement | null = null
+function getCanvas(): HTMLCanvasElement {
+  if (!_sharedCanvas) _sharedCanvas = document.createElement('canvas')
+  return _sharedCanvas
+}
+
 async function toJpegDataUrl(src: string): Promise<{data: string; w: number; h: number} | null> {
   return new Promise(resolve => {
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.onload = () => {
-      const canvas = document.createElement('canvas')
+      const canvas = getCanvas()
       canvas.width  = img.naturalWidth  || img.width  || 800
       canvas.height = img.naturalHeight || img.height || 600
       const ctx = canvas.getContext('2d')
-      if (!ctx) { resolve(null); return } // iOS canvas context limit guard
+      if (!ctx) { resolve(null); return }
       ctx.fillStyle = '#FFFFFF'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
       ctx.drawImage(img, 0, 0)
