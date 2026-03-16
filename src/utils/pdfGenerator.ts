@@ -343,20 +343,49 @@ async function pageTest(doc: Doc, test: TestEntry, n: number, lang: Lang = 'EN')
     lines.forEach((l: string) => { doc.text(l, lx, ly); ly += 6 })
   }
 
-  // Photos right column
-  const rightPhotos = test.photos.slice(0,2)
+  // Photos right column — up to 4 in a 2x2 grid
+  const rightPhotos = test.photos.slice(0, 4)
   if (rightPhotos.length > 0) {
+    const startY = 20
     const availH = H - 22
-    const ph = rightPhotos.length === 1 ? availH : (availH/2) - 4
-    for (let i = 0; i < rightPhotos.length; i++) {
-      const photo = rightPhotos[i]
+    const gap = 4
+
+    if (rightPhotos.length === 1) {
+      const photo = rightPhotos[0]
       const src = photo.annotatedBase64 || photo.originalBase64
       if (src) {
-        await addPhoto(doc, src, rx, 20 + i*(ph+6), rcw, ph)
+        await addPhoto(doc, src, rx, startY, rcw, availH)
         if (photo.caption) {
           doc.setFontSize(8); doc.setFont('helvetica','italic'); doc.setTextColor(GRAY)
-          doc.text(photo.caption, rx+rcw/2, 20+i*(ph+6)+ph+4, {align:'center'})
+          doc.text(photo.caption, rx + rcw/2, startY + availH + 4, { align: 'center' })
         }
+      }
+    } else if (rightPhotos.length === 2) {
+      const ph = (availH - gap) / 2
+      for (let i = 0; i < 2; i++) {
+        const photo = rightPhotos[i]
+        const src = photo.annotatedBase64 || photo.originalBase64
+        if (src) {
+          const by = startY + i * (ph + gap)
+          await addPhoto(doc, src, rx, by, rcw, ph)
+          if (photo.caption) {
+            doc.setFontSize(8); doc.setFont('helvetica','italic'); doc.setTextColor(GRAY)
+            doc.text(photo.caption, rx + rcw/2, by + ph + 4, { align: 'center' })
+          }
+        }
+      }
+    } else {
+      // 3-4 photos: 2x2 grid
+      const pw = (rcw - gap) / 2
+      const ph = (availH - gap) / 2
+      for (let i = 0; i < rightPhotos.length; i++) {
+        const col = i % 2
+        const row = Math.floor(i / 2)
+        const bx = rx + col * (pw + gap)
+        const by = startY + row * (ph + gap)
+        const photo = rightPhotos[i]
+        const src = photo.annotatedBase64 || photo.originalBase64
+        if (src) await addPhoto(doc, src, bx, by, pw, ph)
       }
     }
   }

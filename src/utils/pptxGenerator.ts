@@ -325,19 +325,51 @@ async function slideTest(pres: Pres, test: TestEntry, n: number, total: number) 
     slide.addText(test.observations, { x: lx, y: 3.6, w: lcw, h: H - 3.9, fontSize: 10, color: DARK, fontFace: 'Calibri', valign: 'top', wrap: true })
   }
 
-  // Photos right column
-  const rightPhotos = test.photos.slice(0, 2)
+  // Photos right column — up to 4 in a 2x2 grid
+  const rightPhotos = test.photos.slice(0, 4)
   if (rightPhotos.length > 0) {
+    const startY = 0.72
     const availH = H - 0.75
-    const ph = rightPhotos.length === 1 ? availH : (availH / 2) - 0.1
-    for (let i = 0; i < rightPhotos.length; i++) {
-      const photo = rightPhotos[i]
+    const gap = 0.1
+
+    if (rightPhotos.length === 1) {
+      const photo = rightPhotos[0]
       const src = photo.annotatedBase64 || photo.originalBase64
       if (src) {
-        const cp = await containPhoto(src, rx, 0.72 + i * (ph + 0.15), cw, ph)
+        const cp = await containPhoto(src, rx, startY, cw, availH)
         if (cp) slide.addImage({ data: cp.data, x: cp.x, y: cp.y, w: cp.w, h: cp.h })
         if (photo.caption) {
-          slide.addText(photo.caption, { x: rx, y: 0.72 + i * (ph + 0.15) + ph + 0.02, w: cw, h: 0.18, fontSize: 8, color: GRAY, align: 'center', italic: true, fontFace: 'Calibri', margin: 0 })
+          slide.addText(photo.caption, { x: rx, y: startY + availH + 0.02, w: cw, h: 0.18, fontSize: 8, color: GRAY, align: 'center', italic: true, fontFace: 'Calibri', margin: 0 })
+        }
+      }
+    } else if (rightPhotos.length === 2) {
+      const ph = (availH - gap) / 2
+      for (let i = 0; i < 2; i++) {
+        const photo = rightPhotos[i]
+        const src = photo.annotatedBase64 || photo.originalBase64
+        if (src) {
+          const by = startY + i * (ph + gap)
+          const cp = await containPhoto(src, rx, by, cw, ph)
+          if (cp) slide.addImage({ data: cp.data, x: cp.x, y: cp.y, w: cp.w, h: cp.h })
+          if (photo.caption) {
+            slide.addText(photo.caption, { x: rx, y: by + ph + 0.02, w: cw, h: 0.18, fontSize: 8, color: GRAY, align: 'center', italic: true, fontFace: 'Calibri', margin: 0 })
+          }
+        }
+      }
+    } else {
+      // 3-4 photos: 2x2 grid
+      const pw = (cw - gap) / 2
+      const ph = (availH - gap) / 2
+      for (let i = 0; i < rightPhotos.length; i++) {
+        const col = i % 2
+        const row = Math.floor(i / 2)
+        const bx = rx + col * (pw + gap)
+        const by = startY + row * (ph + gap)
+        const photo = rightPhotos[i]
+        const src = photo.annotatedBase64 || photo.originalBase64
+        if (src) {
+          const cp = await containPhoto(src, bx, by, pw, ph)
+          if (cp) slide.addImage({ data: cp.data, x: cp.x, y: cp.y, w: cp.w, h: cp.h })
         }
       }
     }
